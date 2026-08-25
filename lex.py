@@ -12,6 +12,7 @@ caracter_abertura = ['{','(']
 caracter_fechamento = ['}',')']
 reservada = ['class','inherits','if','then','else','while','loop','pool','let','in','case','of','esac','new','isvoid',]
 booleano = ['true','false']
+indentificadores = ['self','SELF_TYPE']
 
 simbolos = {
             '{':	'LBRACE',
@@ -38,6 +39,8 @@ def tipagem(lexema):
         tipo = 'Bool'
     elif lexema.lower() in reservada:
         tipo = 'palavra reservada'
+    elif lexema in indentificadores:
+        tipo = 'identificador'
     elif lexema.isdigit():
         tipo = 'Int'
     elif lexema[0].isupper():
@@ -65,7 +68,11 @@ def lex(codigo,pos,linha):
             pos = pos + 2
             while pos < tamanho-1 and (not codigo[pos] == '*' or not codigo[pos+1] == ')'):
                 pos += 1
-            pos +=2
+            if pos == tamanho-1:
+                print("Comentario não finalizado")
+                return None,None, pos, linha
+            else:
+                pos +=2
 
     
     if pos >= tamanho:
@@ -79,10 +86,14 @@ def lex(codigo,pos,linha):
             pos += 1
             while pos < tamanho and not codigo[pos] == '"':
                 pos += 1            
+            if pos - inicio -1 > 1023:
+                print("String muito grande")
+                return None, None, pos, linha
             if pos < tamanho:
                 pos += 1
             elif pos == tamanho:
                 print("String não finalizada, falta o fecha aspas")
+                return None, None, pos, linha
         elif codigo[pos] == "<":
             if pos < tamanho-1 and (codigo[pos+1] == '-' or codigo[pos+1] == '=') :
                 pos = pos + 2
@@ -125,7 +136,7 @@ tipo=""
 
 while pos < tamanho:
     tipo,lexema,pos,linha = lex(codigo,pos,linha)
-    print(f"Lexema: {lexema}, Tipo {tipo}, Linha: {linha}")
+    print(f"Lexema: {lexema}, Tipo: {tipo}, Linha: {linha}")
     if lexema == None:
         break
 
