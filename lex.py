@@ -1,13 +1,4 @@
-import time
-def ler_arquivo(caminho):
-    try:
-        with open(caminho, 'r') as f:
-            conteudo = f.read()
-        return conteudo
-    except FileNotFoundError:
-        print("File not found!")
-
-caracter = [':','<',';',',','=','+','-','*','/','"']
+caracter = [':','<',';',',','=','+','-','*','/','"','.']
 caracter_abertura = ['{','(']
 caracter_fechamento = ['}',')']
 reservada = ['class','inherits','if','then','else','while','loop','pool','let','in','case','of','esac','new','isvoid',]
@@ -30,7 +21,8 @@ simbolos = {
             '-':    'MINUS',
             '*':    'TIMES',
             '/':    'DIVIDE',
-            '@':    'AT'
+            '@':    'AT',
+            '.':    'DOT'
 }
 
 def tipagem(lexema):
@@ -54,7 +46,7 @@ def tipagem(lexema):
     return tipo
 
 
-def lex(codigo,pos,linha):
+def lex(codigo,pos,linha,tamanho):
     while pos < tamanho and (codigo[pos].isspace() or (codigo[pos] == '-' and pos < tamanho-1 and codigo[pos+1] == "-") or (codigo[pos] == '(' and pos < tamanho-1 and codigo[pos+1] == '*')):
         if codigo[pos].isspace():
             if codigo[pos] == '\n':
@@ -125,18 +117,16 @@ def lex(codigo,pos,linha):
         tipo = tipagem(lexema)
     return tipo,lexema, pos, linha
 
-
-
-codigo = ler_arquivo("teste.cl")
-pos = 0
-linha = 1
-tamanho = len(codigo)
-i=0
-tipo=""
-
-while pos < tamanho:
-    tipo,lexema,pos,linha = lex(codigo,pos,linha)
-    print(f"Lexema: {lexema}, Tipo: {tipo}, Linha: {linha}")
-    if lexema == None:
-        break
+def tokenizar(codigo,tamanho):
+    pos = 0
+    linha = 1
+    tipo = ''
+    tokens = []
+    while pos < tamanho:
+        tipo,lexema,pos,linha = lex(codigo,pos,linha,tamanho)
+        if lexema == None:
+            return tokens
+        else:
+            tokens.append((tipo,lexema,linha))
+    return tokens
 
